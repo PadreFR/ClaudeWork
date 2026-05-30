@@ -297,7 +297,7 @@ button { font: inherit; color: inherit; border: 0; background: transparent; curs
 @keyframes flow {
   to { stroke-dashoffset: -18; }
 }
-.pump-rotor { animation: spin 2s linear infinite; transform-origin: center; }
+.pump-rotor { animation: spin 2s linear infinite; transform-origin: center; transform-box: fill-box; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ─── Alarms ─────────────────────────────────────── */
