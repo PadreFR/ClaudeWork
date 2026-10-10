@@ -10,10 +10,19 @@ This repository is a workspace for Claude-assisted development tasks related to 
 
 ```
 ClaudeWork/
-└── CLAUDE.md   # This file
+├── CLAUDE.md          # This file
+├── hello-world/       # .NET Hello World console app (built by .github/workflows/dotnet-build.yml)
+└── frange-coiffeur/   # Static single-page demo of a hair-salon booking site (French)
+    ├── index.html     # All HTML, CSS and JS; no build step
+    └── README.md
 ```
 
-No source code, build system, or framework is committed yet.
+### frange-coiffeur
+
+- Open `frange-coiffeur/index.html` directly, or serve it with `python3 -m http.server 8000 --directory frange-coiffeur`.
+- No dependencies or build. Fonts load from Google Fonts with system fallbacks.
+- Colors are CSS custom properties on `:root`, with dark-theme overrides. Add new colors as tokens, not literals.
+- Salon data is fictional and generated deterministically per city (`salonsFor`). Keep it marked as demo content.
 
 ---
 

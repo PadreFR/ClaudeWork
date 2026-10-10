@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a salon station. Headline and search on the left, an arched mirror with moving strands on the right; listings below sit as flat rows on a cool tile-white ground. */
+:root{
+  --paper:#F4F5F7;
+  --card:#FFFFFF;
+  --ink:#15171D;
+  --muted:#596070;
+  --line:#DADDE4;
+  --rouge:#A8123C;      /* 6.66, rouge intense */
+  --on-rouge:#FFFFFF;
+  --blond:#F0E4BF;      /* 9.3, blond très clair doré */
+  --on-blond:#3B3216;
+  --mirror:#1A1C23;
+  --mirror-hi:#2E3240;
+  --frame:#C7CBD3;
+  --scrim:rgba(12,14,19,.55);
+  --shadow:0 1px 2px rgba(18,20,28,.06),0 10px 30px rgba(18,20,28,.07);
+  --f-display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1116; --card:#171A21; --ink:#ECEEF2; --muted:#9AA1B0; --line:#2A2F3A;
+    --rouge:#F2577F; --on-rouge:#1C0710; --blond:#3A321B; --on-blond:#F1E3B8;
+    --mirror:#0A0B0F; --mirror-hi:#1D2029; --frame:#3A3F4B; --scrim:rgba(0,0,0,.65);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1116; --card:#171A21; --ink:#ECEEF2; --muted:#9AA1B0; --line:#2A2F3A;
+  --rouge:#F2577F; --on-rouge:#1C0710; --blond:#3A321B; --on-blond:#F1E3B8;
+  --mirror:#0A0B0F; --mirror-hi:#1D2029; --frame:#3A3F4B; --scrim:rgba(0,0,0,.65);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+img,svg,canvas{max-width:100%}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--rouge);outline-offset:2px}
+.wrap{width:100%;max-width:1200px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px)}
+.eyebrow{font:500 12px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fine{font-size:13px;color:var(--muted)}
+.link{background:none;border:0;padding:0;color:inherit;font:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.link:hover{color:var(--rouge)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 15px/1.1 var(--f-body);padding:13px 20px;border-radius:12px;border:1px solid transparent;text-decoration:none;transition:background-color .15s,border-color .15s,color .15s}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--rouge);color:var(--on-rouge)}
+.btn-accent:hover{background:color-mix(in srgb,var(--rouge) 86%,var(--ink))}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover:not(:disabled){background:color-mix(in srgb,var(--ink) 85%,var(--rouge))}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;line-height:1.2;transition:border-color .15s,background-color .15s,color .15s}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* Top of page */
+.demo-bar{background:var(--blond);color:var(--on-blond);font-size:13px;text-align:center;padding-block:7px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px 20px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding-block:10px}
+.topbar-links{display:flex;gap:18px;align-items:center}
+.topbar a,.topbar .linkish{color:var(--ink);font-weight:600;text-decoration:none;background:none;border:0;padding:0;display:inline-flex;align-items:center;gap:6px}
+.topbar a:hover,.topbar .linkish:hover{color:var(--rouge)}
+.count{display:inline-grid;place-items:center;min-width:20px;height:20px;padding-inline:6px;border-radius:999px;background:var(--rouge);color:var(--on-rouge);font:500 11px/1 var(--f-mono)}
+.site-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.header-inner{display:flex;align-items:center;gap:12px 28px;min-height:64px;flex-wrap:wrap;padding-block:8px}
+.logo{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font:800 26px/1 var(--f-display);letter-spacing:-.04em;font-variation-settings:"opsz" 48}
+.logo svg{width:30px;height:30px;flex:none}
+.cats{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+.cats::-webkit-scrollbar{display:none}
+.cats button{white-space:nowrap;background:none;border:0;padding:8px 12px;border-radius:999px;font-size:15px;font-weight:500;color:var(--muted)}
+.cats button:hover{color:var(--ink)}
+.cats button[aria-current="page"]{background:var(--ink);color:var(--paper)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:clamp(28px,5vw,72px);align-items:center;padding-block:clamp(32px,6vw,72px)}
+.hero h1{font-weight:800;font-size:clamp(2.6rem,6.2vw,4.6rem);line-height:.96;letter-spacing:-.04em;margin-block:14px 18px;font-variation-settings:"opsz" 96}
+.hero h1 em{font-style:normal;color:var(--rouge)}
+.lede{font-size:clamp(1.05rem,1.6vw,1.2rem);color:var(--muted);max-width:52ch}
+.search{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) auto;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:6px;margin-top:28px}
+.field{display:flex;flex-direction:column;justify-content:center;padding:8px 14px;min-width:0;border-radius:11px}
+.field+.field{border-left:1px solid var(--line)}
+.field:focus-within{box-shadow:inset 0 0 0 2px var(--rouge)}
+.field label{font-size:12px;font-weight:700;letter-spacing:.02em}
+.field input{border:0;background:transparent;font-size:16px;padding:2px 0;outline:none;min-width:0;width:100%}
+.field input::placeholder{color:var(--muted);opacity:.85}
+.search .btn{border-radius:11px;padding-inline:26px}
+.quick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;font-size:14px;color:var(--muted)}
+.mirror-col{display:flex;justify-content:center}
+.mirror{position:relative;width:min(100%,400px);aspect-ratio:4/5.1;border-radius:220px 220px 22px 22px;overflow:hidden;background:radial-gradient(120% 80% at 28% 12%,var(--mirror-hi),var(--mirror) 62%);border:10px solid var(--frame);box-shadow:var(--shadow);max-width:100%}
+.mirror canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ticket{position:absolute;left:14px;right:14px;bottom:14px;display:grid;gap:2px;text-align:left;background:var(--card);color:var(--ink);border:0;border-radius:14px;padding:14px 16px;box-shadow:0 12px 32px rgba(0,0,0,.28);transition:transform .2s}
+.ticket:hover{transform:translateY(-2px)}
+.ticket span{display:block}
+.ticket-label{font:500 11px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--rouge)}
+.ticket-time{font:800 28px/1.1 var(--f-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ticket-time small{font:500 15px var(--f-body);color:var(--muted);letter-spacing:0;margin-right:6px}
+.ticket-svc{font-size:14px}
+.ticket-salon{font-size:13px;color:var(--muted)}
+
+/* Sections */
+.section{padding-block:clamp(40px,6vw,72px);border-top:1px solid var(--line)}
+.section h2{font-weight:800;font-size:clamp(1.8rem,3.6vw,2.7rem);line-height:1.04;letter-spacing:-.035em;font-variation-settings:"opsz" 72}
+.section-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px 24px;margin-bottom:28px}
+.section-lede{color:var(--muted);max-width:60ch;margin-top:8px}
+
+.cities{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.city{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:center;text-align:left;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--card);transition:border-color .15s,transform .15s}
+.city:hover{border-color:var(--ink);transform:translateY(-1px)}
+.city-dep{grid-row:1 / span 2;font:500 26px/1 var(--f-mono);color:var(--rouge);min-width:2.2ch}
+.city-name{font:700 19px/1.2 var(--f-display);letter-spacing:-.01em;overflow-wrap:anywhere}
+.city-sub{font-size:13px;color:var(--muted)}
+.more-cities{margin-top:20px;columns:4 180px;column-gap:24px;list-style:none;padding:0}
+.more-cities li{break-inside:avoid;padding-block:4px}
+.more-cities button{background:none;border:0;padding:0;text-align:left;color:var(--ink);font-size:15px}
+.more-cities button:hover{color:var(--rouge);text-decoration:underline}
+.more-cities .dep{font:500 12px var(--f-mono);color:var(--muted);margin-left:6px}
+
+.trends{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.trend{display:flex;flex-direction:column;gap:10px;padding:22px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.trend h3{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.trend p{color:var(--muted);font-size:15px}
+.trend-meta{font:500 13px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.trend-cities{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+.trend-cities .chip{padding:6px 12px;font-size:13px}
+
+.guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,40px)}
+.guide article{display:flex;flex-direction:column;gap:10px;min-width:0}
+.guide h3{font-size:21px;font-weight:700;letter-spacing:-.015em}
+.guide p{color:var(--muted);max-width:62ch}
+.guide .kicker{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--rouge)}
+
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
+.prose{display:flex;flex-direction:column;gap:14px}
+.prose p{max-width:60ch}
+.prose .muted{color:var(--muted)}
+.code-sample{font:500 15px var(--f-mono);background:var(--blond);color:var(--on-blond);padding:1px 6px;border-radius:4px}
+.shade-tool{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,3vw,28px);display:flex;flex-direction:column;gap:20px}
+.shade-out{display:flex;align-items:center;gap:22px}
+.shade-swatch{--c:#9F7A54;flex:none;width:84px;height:124px;border-radius:42px 42px 12px 12px;background:repeating-linear-gradient(96deg,rgba(255,255,255,.06) 0 2px,transparent 2px 5px),linear-gradient(98deg,color-mix(in srgb,var(--c) 68%,#000) 0%,var(--c) 32%,color-mix(in srgb,var(--c) 72%,#fff) 50%,var(--c) 66%,color-mix(in srgb,var(--c) 68%,#000) 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.shade-code{font:500 clamp(2.4rem,5vw,3.2rem)/1 var(--f-mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.shade-name{font:700 19px/1.25 var(--f-display);margin-top:6px}
+.shade-label{font-size:13px;font-weight:700;margin-bottom:8px;display:block}
+.levels{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+.levels button{aspect-ratio:1/1.3;border:0;border-radius:6px;font:500 13px var(--f-mono);display:grid;place-items:end center;padding-bottom:4px;transition:transform .15s}
+.levels button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:2px;transform:translateY(-3px)}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-size:15px}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.face-panel{display:grid;grid-template-columns:200px minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,3vw,32px)}
+.face-panel svg{width:100%;height:auto;color:var(--ink)}
+.face-panel .guides{color:var(--muted)}
+.face-text{display:flex;flex-direction:column;gap:14px;min-width:0}
+.face-text h3{font-size:24px;font-weight:700}
+.face-text p{max-width:60ch}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.dos h4{margin:0 0 6px;font-size:13px;font-weight:700}
+.dos ul{margin:0;padding-left:18px;color:var(--muted)}
+.dos li{padding-block:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+
+.pro{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,4vw,56px);align-items:center;background:var(--ink);color:var(--paper);border-radius:24px;padding:clamp(24px,5vw,56px)}
+.pro .eyebrow{color:inherit;opacity:.7}
+.pro h2{margin-block:10px 14px}
+.pro-list{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:12px}
+.pro-list li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:12px;align-items:baseline}
+.pro-list li::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--rouge);transform:translateY(-1px)}
+.pro .btn{background:var(--paper);color:var(--ink)}
+.pro .btn:hover{background:var(--blond);color:var(--on-blond)}
+.agenda{background:var(--paper);color:var(--ink);border-radius:16px;padding:16px;display:grid;gap:8px;font-size:14px}
+.agenda-head{display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+.agenda-head span{font:500 12px var(--f-mono);color:var(--muted)}
+.agenda-row{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;align-items:stretch}
+.agenda-row time{font:500 12px/1 var(--f-mono);color:var(--muted);padding-top:9px;font-variant-numeric:tabular-nums}
+.appt{border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.appt b{font-weight:600}
+.appt span{opacity:.8}
+.appt.a{background:var(--rouge);color:var(--on-rouge)}
+.appt.b{background:var(--blond);color:var(--on-blond)}
+.appt.free{border:1px dashed var(--line);color:var(--muted)}
+
+.appband{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px}
+.appband p{max-width:56ch;color:var(--muted)}
+.appband .soon{font:500 13px var(--f-mono);padding:8px 12px;border-radius:8px;border:1px dashed var(--line)}
+
+/* Footer */
+.site-footer{border-top:1px solid var(--line);background:var(--card);padding-block:48px 28px}
+.footer-grid{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr));gap:32px}
+.footer-brand{display:flex;flex-direction:column;gap:12px}
+.footer-brand p{color:var(--muted);font-size:14px;max-width:40ch}
+.site-footer h3{font:700 13px var(--f-body);letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px}
+.site-footer ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.site-footer li button{background:none;border:0;padding:0;text-align:left;font-size:14px;color:var(--muted)}
+.site-footer li button:hover{color:var(--ink);text-decoration:underline}
+.footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+
+/* Results */
+.results{padding-block:24px 72px}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--muted)}
+.crumbs button{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.results-head{margin-block:14px 18px}
+.results-head h1{font-weight:800;font-size:clamp(2.1rem,4.6vw,3.3rem);letter-spacing:-.035em;line-height:1;font-variation-settings:"opsz" 96}
+.results-sub{color:var(--muted);margin-top:8px}
+.search.compact{margin-top:0;margin-bottom:16px;box-shadow:none}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:20px}
+.sort{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.sort .select{width:auto;padding:8px 10px;background:var(--card);color:var(--ink)}
+.notice{padding:12px 16px;border-radius:12px;background:var(--blond);color:var(--on-blond);font-size:14px;margin-bottom:16px}
+.salon-list{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.salon{display:grid;grid-template-columns:104px minmax(0,1fr) minmax(0,330px);gap:20px;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.salon-photo{aspect-ratio:1;width:100%;border-radius:12px;display:grid;place-items:center;color:#FFF;font:800 28px/1 var(--f-display);letter-spacing:-.03em;background:repeating-linear-gradient(104deg,rgba(255,255,255,.08) 0 2px,transparent 2px 6px),linear-gradient(160deg,var(--a),var(--b))}
+.salon-info{display:flex;flex-direction:column;gap:6px;min-width:0}
+.salon-kind{font:500 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.salon-name button{background:none;border:0;padding:0;text-align:left;font:700 21px/1.15 var(--f-display);letter-spacing:-.02em}
+.salon-name button:hover{text-decoration:underline;text-underline-offset:3px}
+.salon-addr{font-size:14px;color:var(--muted)}
+.salon-meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:14px;align-items:center}
+.stars{font-weight:700}
+.stars::before{content:"★";color:var(--rouge);margin-right:3px}
+.sep{color:var(--line)}
+.salon-from{font-size:14px}
+.salon-from b{font:500 15px var(--f-mono);font-variant-numeric:tabular-nums}
+.tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:4px 0 0}
+.tags li{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+.tags li.hit{background:var(--blond);color:var(--on-blond);border-color:transparent}
+.salon-slots{display:flex;flex-direction:column;gap:12px;min-width:0}
+.days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.day{display:flex;flex-direction:column;gap:6px;min-width:0}
+.day-label{font-size:12px;font-weight:600;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot{width:100%;padding:7px 4px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font:500 14px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
+.slot:hover{border-color:var(--rouge);color:var(--rouge)}
+.slot.more{font-family:var(--f-body);font-size:12px;color:var(--muted)}
+.day-none{font-size:12px;color:var(--muted);text-align:center;padding:7px 0;border:1px dashed var(--line);border-radius:8px}
+.salon-slots .btn{width:100%}
+.empty{padding:40px 24px;text-align:center;border:1px dashed var(--line);border-radius:18px;display:grid;justify-items:center;gap:14px;color:var(--muted)}
+.empty h2{font-size:22px;color:var(--ink)}
+
+/* Dialogs */
+dialog{border:0;padding:0;border-radius:20px;background:var(--card);color:var(--ink);width:min(640px,calc(100% - 24px));max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog[open]{display:flex;flex-direction:column}
+dialog::backdrop{background:var(--scrim)}
+.dlg-head{display:flex;justify-content:space-between;align-items:start;gap:16px;padding:22px 24px 14px}
+.dlg-head h2{font-size:24px;font-weight:800;letter-spacing:-.025em}
+.dlg-head .kicker{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.dlg-head .addr{font-size:14px;color:var(--muted);margin-top:4px}
+.dlg-head .hours{font-size:13px;color:var(--muted);margin-top:2px}
+.x{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:20px;line-height:1;display:grid;place-items:center}
+.x:hover{border-color:var(--ink)}
+.stepper{display:flex;gap:6px 16px;flex-wrap:wrap;list-style:none;margin:0;padding:0 24px 14px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.stepper li{display:flex;align-items:center;gap:6px}
+.stepper li span{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--line);font:500 11px var(--f-mono)}
+.stepper li.is-current{color:var(--ink);font-weight:600}
+.stepper li.is-current span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.stepper li.is-done span{background:var(--blond);color:var(--on-blond);border-color:transparent}
+.dlg-body{overflow:auto;flex:1;min-height:0;padding:16px 24px 20px;display:flex;flex-direction:column;gap:18px}
+.dlg-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 24px;border-top:1px solid var(--line)}
+.dlg-foot .grow{flex:1;min-width:0;font-size:13px;color:var(--muted)}
+.svc-group{border:0;margin:0;padding:0;display:grid;gap:8px}
+.svc-group legend{font:700 13px var(--f-body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:0;margin-bottom:8px}
+.svc{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.svc:hover{border-color:var(--muted)}
+.svc:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.svc input{accent-color:var(--rouge);width:18px;height:18px;margin:0}
+.svc-dur{font-size:13px;color:var(--muted);white-space:nowrap}
+.svc-price{font:500 15px var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.picked{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--paper);font-size:14px}
+.daystrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+.daybtn{flex:none;scroll-snap-align:start;width:72px;display:grid;gap:1px;justify-items:center;padding:10px 4px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.daybtn .dw{font-size:12px;color:var(--muted)}
+.daybtn .dn{font:700 20px/1.1 var(--f-display)}
+.daybtn .dm{font:500 10px var(--f-mono);color:var(--muted);white-space:nowrap}
+.daybtn:disabled{opacity:.45;cursor:not-allowed;background:var(--paper)}
+.daybtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.daybtn[aria-pressed="true"] .dw,.daybtn[aria-pressed="true"] .dm{color:inherit;opacity:.75}
+#bk-slots{display:grid;gap:18px}
+.slot-group h3{font:700 13px var(--f-body);color:var(--muted);margin-bottom:8px}
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.slot-grid .slot{padding:9px 4px}
+.slot[aria-pressed="true"]{background:var(--rouge);color:var(--on-rouge);border-color:var(--rouge)}
+.warn{padding:10px 14px;border-radius:10px;background:var(--blond);color:var(--on-blond);font-size:14px}
+.recap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 18px;margin:0;padding:16px;border-radius:12px;background:var(--paper);font-size:15px}
+.recap dt{color:var(--muted)}
+.recap dd{margin:0;font-weight:600}
+.form{display:grid;gap:14px}
+.form label{display:grid;gap:6px;font-size:14px;font-weight:600}
+.form input,.form select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-size:16px;font-weight:400}
+.form input:focus{outline:2px solid var(--rouge);outline-offset:0;border-color:transparent}
+.err{color:var(--rouge);font-size:13px;font-weight:600}
+.done{display:grid;justify-items:center;text-align:center;gap:12px;padding:32px 24px 28px}
+.done-mark{width:64px;height:64px;border-radius:50%;background:var(--rouge);color:var(--on-rouge);display:grid;place-items:center}
+.done h2{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.done p{max-width:44ch}
+.done .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+.rdv-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.rdv{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px;border:1px solid var(--line);border-radius:14px}
+.rdv.past{opacity:.6}
+.rdv-date{display:grid;justify-items:center;align-content:center;gap:0;background:var(--paper);border-radius:10px;padding:8px 4px}
+.rdv-date .dw{font-size:12px;color:var(--muted)}
+.rdv-date .dn{font:700 22px/1.1 var(--f-display)}
+.rdv-date .dm{font:500 11px var(--f-mono);color:var(--muted)}
+.rdv-main{display:grid;gap:3px;min-width:0}
+.rdv-time{font:500 14px var(--f-mono);font-variant-numeric:tabular-nums}
+.rdv-svc{font-weight:700}
+.rdv-salon{font-size:14px;color:var(--muted)}
+.rdv-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px;font-size:14px}
+.rdv-actions .btn{padding:8px 12px;font-size:13px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:100}
+.toast.is-on{opacity:1;transform:translate(-50%,0)}
+
+/* Responsive */
+@media (max-width: 980px){
+  .salon{grid-template-columns:88px minmax(0,1fr)}
+  .salon-slots{grid-column:1 / -1}
+  .footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .footer-brand{grid-column:1 / -1}
+}
+@media (max-width: 900px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .mirror{aspect-ratio:auto;height:340px;width:100%;max-width:560px;border-radius:200px 200px 20px 20px}
+  .cities{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .trends,.guide{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split,.pro{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width: 640px){
+  .search{grid-template-columns:minmax(0,1fr)}
+  .field+.field{border-left:0;border-top:1px solid var(--line)}
+  .search .btn{margin-top:6px;padding-block:15px}
+  .cities{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .city{padding:14px;column-gap:10px}
+  .city-dep{font-size:20px}
+  .trends,.guide{grid-template-columns:minmax(0,1fr)}
+  .face-panel{grid-template-columns:minmax(0,1fr)}
+  .face-panel svg{max-width:180px;justify-self:center}
+  .dos,.row2{grid-template-columns:minmax(0,1fr)}
+  .salon{grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px}
+  .salon-photo{font-size:20px}
+  .sort{margin-left:0}
+  .footer-grid{grid-template-columns:minmax(0,1fr)}
+  .dlg-head,.dlg-body,.dlg-foot{padding-inline:18px}
+  .stepper{padding-inline:18px}
+  .svc{grid-template-columns:auto minmax(0,1fr) auto}
+  .svc-dur{grid-column:2;grid-row:2;margin-top:-8px}
+  .svc-price{grid-row:1 / span 2;grid-column:3}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-bar"><div class="wrap">Site de démonstration : les salons, avis et créneaux sont fictifs, et aucune réservation n’est transmise.</div></div>
+
+<div class="wrap topbar">
+  <span>Vous êtes coiffeur ? <a href="#pro">Équipez votre salon</a></span>
+  <div class="topbar-links">
+    <button type="button" class="linkish" id="open-rdv">Mes rendez-vous <span class="count" id="rdv-count" hidden>0</span></button>
+    <a href="#app">L’application</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="#top" data-home aria-label="Frange, accueil">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 18a11 11 0 0 1 22 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><g fill="none" stroke="var(--rouge)" stroke-width="2.6" stroke-linecap="round"><path d="M9.5 13.5 8.6 21"/><path d="M13.4 11.2 12.9 22"/><path d="M17.4 11 17.4 20.5"/><path d="M21.2 12 21.9 21.5"/><path d="M24.6 14.6 25.6 20"/></g></svg>
+      frange
+    </a>
+    <nav class="cats" aria-label="Catégories">
+      <button type="button" data-cat="coiffeur" aria-current="page">Coiffeur</button>
+      <button type="button" data-cat="barbier">Barbier</button>
+      <button type="button" data-soon>Manucure</button>
+      <button type="button" data-soon>Institut de beauté</button>
+      <button type="button" data-soon>Bien-être</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ Accueil ============ -->
+<div id="view-home">
+
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Coiffeur · réservation en ligne, 7 jours sur 7</p>
+      <h1>Le bon coiffeur, au <em>bon créneau</em>.</h1>
+      <p class="lede">Comparez les salons autour de vous, voyez les tarifs avant de vous asseoir et réservez à n’importe quelle heure, même un dimanche soir.</p>
+      <form class="search" id="search-home" role="search">
+        <div class="field">
+          <label for="q">Que cherchez-vous ?</label>
+          <input id="q" name="q" type="search" placeholder="Prestation ou nom du salon" autocomplete="off" list="q-suggest">
+        </div>
+        <div class="field">
+          <label for="w">Où ?</label>
+          <input id="w" name="w" type="search" placeholder="Ville ou code postal" autocomplete="off" list="w-suggest">
+        </div>
+        <button class="btn btn-accent" type="submit">Rechercher</button>
+      </form>
+      <div class="quick">
+        <span>Souvent demandé :</span>
+        <button type="button" class="chip" data-q="Coupe homme">Coupe homme</button>
+        <button type="button" class="chip" data-q="Balayage">Balayage</button>
+        <button type="button" class="chip" data-q="Brushing">Brushing</button>
+        <button type="button" class="chip" data-q="Head spa">Head spa</button>
+      </div>
+    </div>
+    <div class="mirror-col">
+      <div class="mirror" id="mirror">
+        <canvas id="strands" aria-hidden="true"></canvas>
+        <button type="button" class="ticket" id="ticket">
+          <span class="ticket-label">Prochain créneau libre à Paris</span>
+          <span class="ticket-time" id="ticket-time"><small>Aujourd’hui</small>18:30</span>
+          <span class="ticket-svc" id="ticket-svc">Shampoing, coupe et brushing · 1 h</span>
+          <span class="ticket-salon" id="ticket-salon">Atelier Velours · 75011 Paris</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="h-villes">
+    <div class="section-head">
+      <div>
+        <h2 id="h-villes">Trouvez un coiffeur dans votre ville</h2>
+        <p class="section-lede">Les douze villes les plus demandées. Le numéro est celui du département.</p>
+      </div>
+      <button type="button" class="btn btn-ghost" id="more-cities-btn" aria-expanded="false" aria-controls="more-cities">Voir plus de villes</button>
+    </div>
+    <div class="cities" id="cities"></div>
+    <ul class="more-cities" id="more-cities" hidden></ul>
+  </section>
+
+  <section class="wrap section" aria-labelledby="h-trends">
+    <div class="section-head">
+      <div>
+        <h2 id="h-trends">Les prestations du moment</h2>
+        <p class="section-lede">Ce que l’on réserve le plus cette saison, avec le prix d’entrée relevé dans les salons de la démo.</p>
+      </div>
+    </div>
+    <div class="trends" id="trends"></div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="h-guide">
+    <div class="section-head">
+      <h2 id="h-guide">Le guide Frange</h2>
+    </div>
+    <div class="guide">
+      <article>
+        <p class="kicker">Avant de réserver</p>
+        <h3>Choisir son salon sans se tromper</h3>
+        <p>Lisez d’abord les avis récents plutôt que la note globale : ils disent comment l’équipe travaille aujourd’hui. Vérifiez ensuite que le tarif affiché précise la longueur. Un salon qui annonce un supplément pour cheveux longs vous évite une surprise à la caisse.</p>
+        <p>Pour une première couleur, demandez un diagnostic. Beaucoup de coloristes le font gratuitement, avec un test de tolérance 48 heures avant la pose.</p>
+      </article>
+      <article>
+        <p class="kicker">Homme</p>
+        <h3>Garder un dégradé net</h3>
+        <p>Un dégradé tient environ trois semaines. Au-delà, la transition entre la tondeuse et les ciseaux se brouille et la nuque perd sa ligne.</p>
+        <p>Prenez le rendez-vous suivant en sortant du salon, les samedis partent vite. Entre deux coupes, un contour nuque et barbe de vingt minutes suffit à tenir la forme.</p>
+      </article>
+      <article>
+        <p class="kicker">Couleur</p>
+        <h3>Passer à la couleur végétale</h3>
+        <p>Henné, indigo et cassia gainent le cheveu au lieu d’en ouvrir les écailles. Le résultat est brillant, mais moins prévisible qu’une coloration d’oxydation : la pose est longue et la teinte évolue sur les premiers shampoings.</p>
+        <p>Ces poudres éclaircissent très peu. Pour passer de châtain à blond, il faudra une autre technique.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap section" id="nuancier" aria-labelledby="h-nuancier">
+    <div class="split">
+      <div class="prose">
+        <p class="eyebrow">Nuancier</p>
+        <h2 id="h-nuancier">Lire un numéro de couleur</h2>
+        <p>Sur un tube de coloration ou une fiche de coloriste, le chiffre avant le point donne la <strong>hauteur de ton</strong> : 1 pour le noir, 10 pour le blond le plus clair.</p>
+        <p>Les chiffres après le point décrivent les <strong>reflets</strong>, le premier étant dominant. Un <span class="code-sample">7.43</span> est donc un blond, cuivré d’abord, doré ensuite. Un chiffre répété, comme <span class="code-sample">6.66</span>, annonce un reflet intense.</p>
+        <p class="muted">Les reflets .7 et .8 ne veulent pas dire la même chose chez toutes les marques. Le rendu affiché ici est indicatif : la couleur obtenue dépend toujours de votre base.</p>
+      </div>
+      <div class="shade-tool" aria-labelledby="shade-title">
+        <h3 id="shade-title" hidden>Composer une nuance</h3>
+        <div class="shade-out" aria-live="polite">
+          <div class="shade-swatch" id="shade-swatch" aria-hidden="true"></div>
+          <div>
+            <p class="shade-code" id="shade-code">7.43</p>
+            <p class="shade-name" id="shade-name">Blond cuivré doré</p>
+          </div>
+        </div>
+        <div>
+          <span class="shade-label" id="levels-label">Hauteur de ton</span>
+          <div class="levels" id="levels" role="group" aria-labelledby="levels-label"></div>
+        </div>
+        <div class="row2">
+          <label><span class="shade-label">Reflet principal</span><select class="select" id="r1"></select></label>
+          <label><span class="shade-label">Reflet secondaire</span><select class="select" id="r2"></select></label>
+        </div>
+        <div><button type="button" class="btn btn-primary" data-q="Coloration">Trouver un coloriste</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="h-visage">
+    <div class="section-head">
+      <div>
+        <h2 id="h-visage">Quelle coupe pour quel visage ?</h2>
+        <p class="section-lede">Comparez du doigt la largeur du front, des pommettes et de la mâchoire. La forme la plus proche donne une piste à discuter avec votre coiffeur.</p>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Formes de visage" id="face-tabs"></div>
+    <div class="face-panel" role="tabpanel" id="face-panel" tabindex="0"></div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="h-freq">
+    <div class="section-head"><h2 id="h-freq">Recherches fréquentes</h2></div>
+    <div class="chips" id="frequent"></div>
+  </section>
+
+  <section class="wrap section" id="pro" aria-labelledby="h-pro">
+    <div class="pro">
+      <div>
+        <p class="eyebrow">Frange Pro</p>
+        <h2 id="h-pro">Vous êtes coiffeur ? Remplissez votre agenda.</h2>
+        <ul class="pro-list">
+          <li><span>Un agenda partagé par toute l’équipe, consultable depuis le bac à shampoing.</span></li>
+          <li><span>Des rappels par SMS la veille, pour moins de fauteuils vides.</span></li>
+          <li><span>Encaissement, fiches clients et formules de couleur au même endroit.</span></li>
+        </ul>
+        <button type="button" class="btn" data-soon>Découvrir Frange Pro</button>
+      </div>
+      <div class="agenda" aria-label="Exemple d’agenda de salon">
+        <div class="agenda-head">Mardi, poste de Léa <span>exemple</span></div>
+        <div class="agenda-row"><time>09:00</time><div class="appt b"><b>Coupe et brushing</b><span>Mme R. · 1 h</span></div></div>
+        <div class="agenda-row"><time>10:00</time><div class="appt a"><b>Balayage, patine</b><span>Mme D. · 2 h 30</span></div></div>
+        <div class="agenda-row"><time>12:30</time><div class="appt free">Pause déjeuner</div></div>
+        <div class="agenda-row"><time>13:30</time><div class="appt b"><b>Formule 6.34</b><span>M. T. · 1 h 30</span></div></div>
+        <div class="agenda-row"><time>15:00</time><div class="appt free">Libre, réservable en ligne</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" id="app" aria-labelledby="h-app">
+    <div class="appband">
+      <div>
+        <h2 id="h-app">L’application Frange</h2>
+        <p>Vos rendez-vous, vos salons favoris et un rappel la veille, sur votre téléphone. Le site fait déjà tout cela depuis votre navigateur.</p>
+      </div>
+      <span class="soon">Bientôt sur iOS et Android</span>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ Résultats ============ -->
+<section id="view-results" class="wrap results" hidden aria-labelledby="results-title">
+  <nav class="crumbs" aria-label="Fil d’Ariane"><button type="button" data-home>Accueil</button><span>›</span><span id="crumb-cat">Coiffeur</span><span>›</span><span id="crumb-city">Paris</span></nav>
+  <div class="results-head">
+    <h1 id="results-title">Coiffeurs à Paris</h1>
+    <p class="results-sub" id="results-sub"></p>
+  </div>
+  <form class="search compact" id="search-results" role="search">
+    <div class="field">
+      <label for="q2">Que cherchez-vous ?</label>
+      <input id="q2" name="q" type="search" placeholder="Prestation ou nom du salon" autocomplete="off" list="q-suggest">
+    </div>
+    <div class="field">
+      <label for="w2">Où ?</label>
+      <input id="w2" name="w" type="search" placeholder="Ville ou code postal" autocomplete="off" list="w-suggest">
+    </div>
+    <button class="btn btn-accent" type="submit">Rechercher</button>
+  </form>
+  <div class="toolbar" id="filters" role="group" aria-label="Filtres"></div>
+  <div id="results-notice"></div>
+  <ol class="salon-list" id="salon-list"></ol>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <a class="logo" href="#top" data-home aria-label="Frange, accueil">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 18a11 11 0 0 1 22 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><g fill="none" stroke="var(--rouge)" stroke-width="2.6" stroke-linecap="round"><path d="M9.5 13.5 8.6 21"/><path d="M13.4 11.2 12.9 22"/><path d="M17.4 11 17.4 20.5"/><path d="M21.2 12 21.9 21.5"/><path d="M24.6 14.6 25.6 20"/></g></svg>
+        frange
+      </a>
+      <p>Les salons de coiffure et les barbiers de votre ville, avec leurs tarifs et leurs créneaux libres.</p>
+      <p class="fine">Projet de démonstration. Les salons, avis, tarifs et disponibilités sont générés, et aucune réservation n’est transmise.</p>
+    </div>
+    <nav aria-labelledby="f-presta"><h3 id="f-presta">Prestations</h3><ul id="f-presta-list"></ul></nav>
+    <nav aria-labelledby="f-villes"><h3 id="f-villes">Coiffeurs par ville</h3><ul id="f-villes-list"></ul></nav>
+    <nav aria-labelledby="f-freq"><h3 id="f-freq">Recherches fréquentes</h3><ul id="f-freq-list"></ul></nav>
+  </div>
+  <div class="wrap footer-bottom"><p>© 2026 Frange</p><p>Version de démonstration</p></div>
+</footer>
+
+<datalist id="q-suggest"></datalist>
+<datalist id="w-suggest"></datalist>
+
+<dialog id="booking" aria-labelledby="bk-title"></dialog>
+<dialog id="rdv" aria-labelledby="rdv-title"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const NB = ' ';
+const pad = n => String(n).padStart(2, '0');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[’'\-]/g, ' ').replace(/\s+/g, ' ').trim();
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const euro = n => n + NB + '€';
+const fmtMin = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+const fmtH = m => Math.floor(m / 60) + 'h' + (m % 60 ? pad(m % 60) : '');
+const fmtDur = m => m < 60 ? m + NB + 'min' : Math.floor(m / 60) + NB + 'h' + (m % 60 ? NB + pad(m % 60) : '');
+
+/* Deterministic randomness: everyone sees the same fictional salons */
+function seed(str){ let h = 2166136261; for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(str){ let a = seed(str); return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
+const shuffle = (r, arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* Dates */
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const today = () => startOfDay(new Date());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const parseYmd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const fDayShort = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' });
+const fLong = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+const fWk = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' });
+const fMon = new Intl.DateTimeFormat('fr-FR', { month: 'short' });
+const dayOffset = d => Math.round((startOfDay(d) - today()) / 864e5);
+const dayWord = d => { const o = dayOffset(d); return o === 0 ? 'Aujourd’hui' : o === 1 ? 'Demain' : cap(fDayShort.format(d)); };
+
+/* ---------- Data ---------- */
+const CITIES = [
+  { n: 'Paris', d: '75', cp: r => '750' + pad(1 + Math.floor(r() * 20)), size: 24 },
+  { n: 'Marseille', d: '13', cp: r => '130' + pad(1 + Math.floor(r() * 16)) },
+  { n: 'Lyon', d: '69', cp: r => '6900' + (1 + Math.floor(r() * 9)) },
+  { n: 'Toulouse', d: '31', cp: '31000' },
+  { n: 'Nice', d: '06', cp: '06000' },
+  { n: 'Nantes', d: '44', cp: '44000' },
+  { n: 'Montpellier', d: '34', cp: '34000' },
+  { n: 'Strasbourg', d: '67', cp: '67000' },
+  { n: 'Bordeaux', d: '33', cp: '33000' },
+  { n: 'Lille', d: '59', cp: '59000' },
+  { n: 'Rennes', d: '35', cp: '35000' },
+  { n: 'Reims', d: '51', cp: '51100' }
+];
+const MORE_CITIES = [['Toulon','83000'],['Saint-Étienne','42000'],['Le Havre','76600'],['Grenoble','38000'],['Dijon','21000'],['Angers','49000'],['Nîmes','30000'],['Aix-en-Provence','13100'],['Clermont-Ferrand','63000'],['Brest','29200'],['Tours','37000'],['Amiens','80000'],['Limoges','87000'],['Metz','57000'],['Perpignan','66000'],['Besançon','25000'],['Orléans','45000'],['Rouen','76000'],['Caen','14000'],['Nancy','54000'],['Avignon','84000'],['Poitiers','86000'],['La Rochelle','17000'],['Annecy','74000']];
+const ALL_CITIES = CITIES.concat(MORE_CITIES.map(([n, cp]) => ({ n, d: cp.slice(0, 2), cp })));
+
+const SERVICES = [
+  { id: 'coupe-femme', g: 'Femme', n: 'Shampoing, coupe et brushing', t: 'Coupe femme', m: 60, p: 45 },
+  { id: 'brushing', g: 'Femme', n: 'Shampoing et brushing', t: 'Brushing', m: 30, p: 28 },
+  { id: 'couleur', g: 'Femme', n: 'Couleur racines et brushing', t: 'Couleur', m: 90, p: 65 },
+  { id: 'balayage', g: 'Femme', n: 'Balayage, patine et brushing', t: 'Balayage', m: 150, p: 120 },
+  { id: 'meches', g: 'Femme', n: 'Mèches en papillotes et brushing', t: 'Mèches', m: 120, p: 98 },
+  { id: 'decoloration', g: 'Femme', n: 'Décoloration complète et patine', t: 'Décoloration', m: 150, p: 110 },
+  { id: 'couleur-veg', g: 'Femme', n: 'Couleur végétale', t: 'Végétal', m: 120, p: 80 },
+  { id: 'lissage', g: 'Femme', n: 'Lissage brésilien', t: 'Lissage', m: 180, p: 160 },
+  { id: 'keratine', g: 'Femme', n: 'Soin profond à la kératine', t: 'Kératine', m: 45, p: 40 },
+  { id: 'headspa', g: 'Femme', n: 'Head spa', t: 'Head spa', m: 60, p: 60 },
+  { id: 'curly', g: 'Femme', n: 'Coupe à sec sur cheveux bouclés', t: 'Bouclés', m: 60, p: 55 },
+  { id: 'chignon', g: 'Femme', n: 'Chignon ou coiffure de soirée', t: 'Chignon', m: 60, p: 55 },
+  { id: 'permanente', g: 'Femme', n: 'Permanente et coupe', t: 'Permanente', m: 120, p: 85 },
+  { id: 'tresses', g: 'Femme', n: 'Tresses ou box braids', t: 'Tresses', m: 240, p: 90 },
+  { id: 'extensions', g: 'Femme', n: 'Pose d’extensions à la kératine', t: 'Extensions', m: 180, p: 240 },
+  { id: 'coupe-homme', g: 'Homme', n: 'Coupe homme', t: 'Homme', m: 30, p: 25 },
+  { id: 'degrade', g: 'Homme', n: 'Dégradé à blanc', t: 'Dégradé', m: 40, p: 28 },
+  { id: 'coupe-barbe', g: 'Homme', n: 'Coupe et taille de barbe', t: 'Coupe et barbe', m: 45, p: 38 },
+  { id: 'barbe', g: 'Homme', n: 'Taille de barbe à l’ancienne', t: 'Barbe', m: 20, p: 18 },
+  { id: 'enfant', g: 'Enfant et étudiant', n: 'Coupe enfant, moins de 12 ans', t: 'Enfant', m: 20, p: 16 },
+  { id: 'etudiant', g: 'Enfant et étudiant', n: 'Coupe étudiant, sur justificatif', t: 'Étudiant', m: 30, p: 22 }
+];
+const SVC = Object.fromEntries(SERVICES.map(s => [s.id, s]));
+const ORDER = Object.fromEntries(SERVICES.map((s, i) => [s.id, i]));
+const BASIC = ['coupe-femme', 'brushing', 'coupe-homme'];
+const FEMME_EXTRA = SERVICES.filter(s => s.g === 'Femme' && !BASIC.includes(s.id)).map(s => s.id);
+const GROUPS = ['Femme', 'Homme', 'Enfant et étudiant'];
+
+const NAME_CORES = ['Velours','Mèche Folle','Peigne d’Or','Boucle Brune','Racines','Nuance 7','Frisotte','Garçonne','Bigoudi','Volute','Mistral','Ruban','Ondine','Ciseaux d’Argent','Coupe Franche','Blond Vénitien','Sel & Poivre','Peigne Fin','Épi Rebelle','Raie de Côté','Chignon Bohème','Cheveu Libre','Rouleau','Henné','Crinière','Patine'];
+const PREFIXES = ['Atelier ', 'Maison ', 'Studio ', '', '', ''];
+const BARBER_NAMES = ['Lame & Blaireau','Le Comptoir du Barbier','Barbe Rousse','Le Rasoir Droit','Fil de Lame','Barbier du Quai','Moustache Club','Blaireau & Fils'];
+const PEOPLE = ['Margaux','Inès','Karim','Léa','Yanis','Chloé','Sofiane','Camille','Amandine','Nadia','Bastien','Jade','Mehdi','Lucie'];
+const STAFF = ['Léa','Karim','Inès','Hugo','Nadia','Bastien','Jade','Mehdi','Lucie','Thomas','Sarah','Malik','Emma','Julien'];
+const STREETS = ['rue de la République','avenue Jean-Jaurès','rue Victor-Hugo','boulevard Gambetta','rue du Commerce','place de la Mairie','rue Pasteur','rue Nationale','cours Carnot','rue des Écoles','avenue de la Gare','rue Émile-Zola','rue des Halles','rue du Marché','boulevard Voltaire','rue Jules-Ferry'];
+const PHOTO = ['#2A1C15','#3B281E','#523627','#6E4B30','#8C6640','#A3542B','#7A2734','#4A3A52','#2F3B45'];
+
+const SALON_BY_ID = new Map();
+const salonCache = new Map();
+
+function cpFor(city, r){ return typeof city.cp === 'function' ? city.cp(r) : (city.cp || ''); }
+
+function salonsFor(city){
+  const key = norm(city.n);
+  if (salonCache.has(key)) return salonCache.get(key);
+  const r = rng('ville:' + key);
+  const count = city.size || 10 + Math.floor(r() * 10);
+  const cores = shuffle(r, NAME_CORES), barbers = shuffle(r, BARBER_NAMES), people = shuffle(r, PEOPLE);
+  const list = [];
+  for (let i = 0; i < count; i++){
+    const barber = r() < 0.2 && barbers.length > 0;
+    let name;
+    if (barber) name = barbers.pop();
+    else if (r() < 0.18 && people.length) name = people.pop() + ' Coiffure';
+    else name = pick(r, PREFIXES) + (cores.pop() || 'Salon n°' + (i + 1));
+    const services = barber
+      ? ['coupe-homme', 'degrade', 'coupe-barbe', 'barbe'].concat(r() < 0.6 ? ['enfant'] : [], r() < 0.4 ? ['etudiant'] : [])
+      : BASIC.concat(shuffle(r, FEMME_EXTRA).slice(0, 5 + Math.floor(r() * 6)), r() < 0.5 ? ['degrade'] : [], r() < 0.7 ? ['enfant'] : [], r() < 0.45 ? ['etudiant'] : []);
+    services.sort((a, b) => ORDER[a] - ORDER[b]);
+    const mult = 0.82 + r() * 0.55;
+    const open = pick(r, [540, 570, 600]);
+    const close = open + pick(r, [540, 570, 600]);
+    const cp = cpFor(city, r);
+    const s = {
+      id: key.replace(/\s/g, '-') + '-' + i,
+      name, kind: barber ? 'barbier' : 'coiffeur', city: city.n,
+      addr: (1 + Math.floor(r() * 98)) + ' ' + pick(r, STREETS) + ', ' + (cp ? cp + ' ' : '') + city.n,
+      rating: Math.round((5 - Math.pow(r(), 2) * 1.1) * 10) / 10,
+      reviews: 8 + Math.floor(Math.pow(r(), 1.7) * 880),
+      mult, price: mult < 0.95 ? '€' : mult < 1.15 ? '€€' : '€€€',
+      open, close, closeSat: close - 60,
+      closedMonday: r() < 0.55, sunday: r() < 0.15, lunch: !barber && r() < 0.3,
+      staff: shuffle(r, STAFF).slice(0, 2 + Math.floor(r() * 3)),
+      colors: [pick(r, PHOTO), pick(r, PHOTO)],
+      services
+    };
+    list.push(s);
+    SALON_BY_ID.set(s.id, s);
+  }
+  salonCache.set(key, list);
+  return list;
+}
+
+function priceOf(s, id){ const v = SVC[id].p * s.mult; return v < 50 ? Math.round(v) : Math.round(v / 5) * 5; }
+
+function hoursFor(s, dow){
+  if (dow === 0) return s.sunday ? [600, 1020] : null;
+  if (dow === 1 && s.closedMonday) return null;
+  if (dow === 6) return [s.open, s.closeSat];
+  return [s.open, s.close];
+}
+function hoursText(s){
+  const wk = (s.closedMonday ? 'Mar.' : 'Lun.') + '–ven. ' + fmtH(s.open) + '–' + fmtH(s.close);
+  const sat = 'sam. ' + fmtH(s.open) + '–' + fmtH(s.closeSat);
+  const sun = s.sunday ? 'dim. 10h–17h' : 'fermé le dimanche';
+  return wk + ' · ' + sat + ' · ' + sun + (s.closedMonday ? ' et le lundi' : '');
+}
+/* Free start times for a day; null when the salon is closed */
+function slotsFor(s, date){
+  const h = hoursFor(s, date.getDay());
+  if (!h) return null;
+  const r = rng(s.id + '|' + ymd(date));
+  const now = new Date();
+  const off = dayOffset(date);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const rate = off === 0 ? 0.22 : off === 1 ? 0.32 : 0.45;
+  const out = [];
+  for (let m = h[0]; m <= h[1] - 30; m += 15){
+    const roll = r();
+    if (s.lunch && m >= 750 && m < 810) continue;
+    if (off === 0 && m < nowMin + 45) continue;
+    if (roll < rate) out.push(m);
+  }
+  return out;
+}
+function fitting(s, date, dur){
+  const h = hoursFor(s, date.getDay());
+  if (!h) return null;
+  return slotsFor(s, date).filter(m => m + dur <= h[1] && !(s.lunch && m < 750 && m + dur > 750));
+}
+
+/* ---------- Search ---------- */
+const KEYWORDS = [
+  [/head ?spa|massage|cuir chevelu/, ['headspa']],
+  [/lissage|bresilien|defris/, ['lissage']],
+  [/keratine|soin/, ['keratine', 'headspa']],
+  [/balayage|ombre|tie and dye|soleil/, ['balayage']],
+  [/meche/, ['meches', 'balayage']],
+  [/decolor|platine|polaire/, ['decoloration']],
+  [/vegetal|henne|bio\b|naturel/, ['couleur-veg']],
+  [/couleur|coloration|coloriste|gris|cheveux blancs/, ['couleur', 'couleur-veg']],
+  [/chignon|mariage|mariee|soiree|evenement/, ['chignon']],
+  [/permanente/, ['permanente']],
+  [/afro|crepu|tresse|natte|braid|locks|vanille/, ['tresses', 'curly']],
+  [/boucl|curly|frise|ondul/, ['curly']],
+  [/extension|rajout/, ['extensions']],
+  [/barbe|rasage/, ['barbe', 'coupe-barbe']],
+  [/degrade|fade|contour/, ['degrade']],
+  [/barbier|barber|homme|garcon|masculin/, ['coupe-homme', 'degrade', 'coupe-barbe', 'barbe']],
+  [/enfant|bebe|kid/, ['enfant']],
+  [/etudiant/, ['etudiant']],
+  [/brushing|mise en plis/, ['brushing']],
+  [/coupe|carre|frange|femme|pixie|visagiste/, ['coupe-femme']]
+];
+const SPECIALS = [
+  [/pas cher|petit prix|petits prix|low cost|economique/, 'cheap'],
+  [/dimanche/, 'sunday'],
+  [/lundi/, 'monday'],
+  [/aujourd|ce soir|derniere minute/, 'today']
+];
+const FILTERS = [
+  { id: 'today', label: 'Disponible aujourd’hui', fn: s => (fitting(s, today(), 30) || []).length > 0 },
+  { id: 'top', label: 'Note 4,5 et plus', fn: s => s.rating >= 4.5 },
+  { id: 'cheap', label: 'Petits prix', fn: s => s.price === '€' },
+  { id: 'monday', label: 'Ouvert le lundi', fn: s => !s.closedMonday },
+  { id: 'sunday', label: 'Ouvert le dimanche', fn: s => s.sunday }
+];
+
+function interpret(q){
+  const k = norm(q);
+  const out = { svc: null, flags: [], name: '', barber: /barb/.test(k) };
+  if (!k) return out;
+  for (const [re, flag] of SPECIALS) if (re.test(k)) out.flags.push(flag);
+  for (const [re, ids] of KEYWORDS) if (re.test(k)){ out.svc = ids; break; }
+  if (!out.svc && !out.flags.length) out.name = k.replace(/\b(coiffeur|coiffeuse|coiffure|salon|chez|de|du|la|le)\b/g, ' ').replace(/\s+/g, ' ').trim();
+  return out;
+}
+
+function resolveCity(w){
+  const k = norm(w);
+  if (!k) return ALL_CITIES[0];
+  if (/^\d{2,5}$/.test(k)){
+    const byCp = ALL_CITIES.find(c => typeof c.cp === 'string' && c.cp === k) || ALL_CITIES.find(c => c.d === k.slice(0, 2));
+    if (byCp) return byCp;
+  }
+  const found = ALL_CITIES.find(c => norm(c.n) === k) || ALL_CITIES.find(c => norm(c.n).startsWith(k));
+  if (found) return found;
+  const name = w.trim().replace(/\s+/g, ' ');
+  return { n: cap(name), d: '', cp: '' };
+}
+
+const state = { q: '', city: ALL_CITIES[0], all: [], intent: interpret(''), filters: new Set(), sort: 'reco' };
+
+function currentCity(){ return $('#w').value.trim() || $('#w2').value.trim() || 'Paris'; }
+
+function runSearch(q, w){
+  q = (q || '').trim();
+  const city = resolveCity(w);
+  state.q = q;
+  state.city = city;
+  state.all = salonsFor(city);
+  state.intent = interpret(q);
+  state.filters = new Set(state.intent.flags);
+  state.sort = 'reco';
+  $('#q').value = $('#q2').value = q;
+  $('#w').value = $('#w2').value = city.n;
+  $('#sort-select') && ($('#sort-select').value = 'reco');
+  renderResults();
+  showView('results');
+}
+
+function refService(s){
+  if (state.intent.svc){ const id = state.intent.svc.find(x => s.services.includes(x)); if (id) return id; }
+  return s.kind === 'barbier' || state.intent.barber ? (s.services.includes('coupe-homme') ? 'coupe-homme' : s.services[0]) : 'coupe-femme';
+}
+
+function sortList(list){
+  const L = list.slice();
+  if (state.sort === 'note') L.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+  else if (state.sort === 'prix') L.sort((a, b) => priceOf(a, refService(a)) - priceOf(b, refService(b)));
+  else L.sort((a, b) => b.rating * Math.log10(b.reviews + 10) - a.rating * Math.log10(a.reviews + 10));
+  return L;
+}
+
+function renderFilters(){
+  $('#filters').innerHTML = FILTERS.map(f => `<button type="button" class="chip" data-filter="${f.id}" aria-pressed="${state.filters.has(f.id)}">${f.label}</button>`).join('') +
+    `<label class="sort" for="sort-select">Trier par <select class="select" id="sort-select"><option value="reco">Recommandés</option><option value="note">Mieux notés</option><option value="prix">Prix croissant</option></select></label>`;
+  $('#sort-select').value = state.sort;
+}
+
+function renderResults(){
+  const { city, intent } = state;
+  let list = state.all;
+  let notice = '';
+  if (intent.svc) list = list.filter(s => intent.svc.some(id => s.services.includes(id)));
+  else if (intent.name){
+    const hits = list.filter(s => norm(s.name).includes(intent.name));
+    if (hits.length) list = hits;
+    else notice = `Aucun salon nommé « ${esc(state.q)} » à ${esc(city.n)}. Voici tous les salons de la ville.`;
+  }
+  const before = list.length;
+  for (const f of FILTERS) if (state.filters.has(f.id)) list = list.filter(f.fn);
+  list = sortList(list);
+
+  const plural = intent.barber ? 'Barbiers' : 'Coiffeurs';
+  $('#results-title').textContent = plural + ' à ' + city.n;
+  $('#crumb-cat').textContent = intent.barber ? 'Barbier' : 'Coiffeur';
+  $('#crumb-city').textContent = city.n;
+  const what = state.q && !notice ? ' pour « ' + state.q + ' »' : '';
+  $('#results-sub').textContent = list.length + ' salon' + (list.length > 1 ? 's' : '') + what + (city.d ? ' · département ' + city.d : '');
+  setNav(intent.barber ? 'barbier' : 'coiffeur');
+  renderFilters();
+  $('#results-notice').innerHTML = notice ? `<p class="notice">${notice}</p>` : '';
+
+  if (!list.length){
+    const withFilters = before > 0;
+    $('#salon-list').innerHTML = `<li class="empty">
+      <h2>${withFilters ? 'Aucun salon ne coche tous ces filtres' : 'Aucun salon ne propose cette prestation ici'}</h2>
+      <p>${withFilters ? 'Retirez un filtre pour voir plus de salons.' : 'Essayez une prestation proche ou une autre ville.'}</p>
+      <button type="button" class="btn btn-primary" ${withFilters ? 'data-clear-filters' : 'data-city="' + esc(city.n) + '"'}>${withFilters ? 'Retirer les filtres' : 'Voir tous les salons de ' + esc(city.n)}</button>
+    </li>`;
+    return;
+  }
+  $('#salon-list').innerHTML = list.map(renderSalon).join('');
+}
+
+function initials(name){
+  const words = name.replace(/^(Atelier|Maison|Studio|Le|La|Les)\s+/i, '').split(/[\s&’']+/).filter(w => w && /\p{L}|\d/u.test(w[0]));
+  return (words[0] ? words[0][0] : '') + (words[1] ? words[1][0] : '');
+}
+
+function renderSalon(s){
+  const ref = refService(s);
+  const hits = new Set(state.intent.svc || []);
+  const specials = s.services.filter(id => !BASIC.includes(id));
+  const ordered = specials.filter(id => hits.has(id)).concat(specials.filter(id => !hits.has(id)));
+  const shown = ordered.slice(0, 4);
+  const extra = ordered.length - shown.length;
+  const tags = shown.map(id => `<li class="${hits.has(id) ? 'hit' : ''}">${SVC[id].t}</li>`).join('') + (extra > 0 ? `<li>+${extra}</li>` : '');
+  const days = [0, 1, 2].map(o => {
+    const d = addDays(today(), o);
+    const sl = fitting(s, d, SVC[ref].m);
+    let body;
+    if (sl === null) body = '<p class="day-none">Fermé</p>';
+    else if (!sl.length) body = '<p class="day-none">Complet</p>';
+    else body = sl.slice(0, 4).map(m => `<button type="button" class="slot" data-slot="${s.id}|${ymd(d)}|${m}">${fmtMin(m)}</button>`).join('') +
+      (sl.length > 4 ? `<button type="button" class="slot more" data-slot-day="${s.id}|${ymd(d)}">+${sl.length - 4} créneaux</button>` : '');
+    return `<div class="day"><p class="day-label">${dayWord(d)}</p>${body}</div>`;
+  }).join('');
+  return `<li class="salon">
+    <div class="salon-photo" style="--a:${s.colors[0]};--b:${s.colors[1]}" aria-hidden="true">${esc(initials(s.name))}</div>
+    <div class="salon-info">
+      <p class="salon-kind">${s.kind === 'barbier' ? 'Barbier' : 'Salon de coiffure'}</p>
+      <h2 class="salon-name"><button type="button" data-open="${s.id}">${esc(s.name)}</button></h2>
+      <p class="salon-addr">${esc(s.addr)}</p>
+      <p class="salon-meta"><span class="stars">${s.rating.toFixed(1).replace('.', ',')}</span><span>${s.reviews} avis</span><span class="sep">·</span><span>${s.price}</span><span class="sep">·</span><span>${s.sunday ? 'Ouvert le dimanche' : s.closedMonday ? 'Fermé le lundi' : 'Ouvert le lundi'}</span></p>
+      <p class="salon-from">${esc(SVC[ref].n)} : <b>${euro(priceOf(s, ref))}</b></p>
+      <ul class="tags">${tags}</ul>
+    </div>
+    <div class="salon-slots">
+      <div class="days">${days}</div>
+      <button type="button" class="btn btn-primary" data-open="${s.id}">Prendre rendez-vous</button>
+    </div>
+  </li>`;
+}
+
+/* ---------- Views ---------- */
+function showView(v){
+  $('#view-home').hidden = v !== 'home';
+  $('#view-results').hidden = v !== 'results';
+  if (v === 'home') setNav('coiffeur');
+  window.scrollTo(0, 0);
+}
+function setNav(cat){ $$('.cats [data-cat]').forEach(b => b.dataset.cat === cat ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')); }
+
+let toastTimer = 0;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('is-on'), 3200);
+}
+
+/* ---------- Booking ---------- */
+const dlgBk = $('#booking');
+const bk = { salon: null, svc: null, day: null, time: null, step: 1, warn: '', saved: null };
+const STEPS = ['Prestation', 'Date et heure', 'Vos coordonnées'];
+
+function openBooking(s, opt = {}){
+  bk.salon = s;
+  bk.svc = opt.svc && s.services.includes(opt.svc) ? opt.svc : (state.intent.svc || []).find(id => s.services.includes(id)) || null;
+  bk.day = opt.day || null;
+  bk.time = opt.time != null ? opt.time : null;
+  bk.step = bk.svc && bk.day ? 2 : 1;
+  bk.warn = '';
+  bk.saved = null;
+  renderBooking();
+  if (!dlgBk.open) dlgBk.showModal();
+}
+
+function bookingHead(s){
+  return `<header class="dlg-head">
+    <div>
+      <p class="kicker">${s.kind === 'barbier' ? 'Barbier' : 'Salon de coiffure'} · ${esc(s.city)}</p>
+      <h2 id="bk-title">${esc(s.name)}</h2>
+      <p class="addr">${esc(s.addr)} · <span class="stars">${s.rating.toFixed(1).replace('.', ',')}</span> (${s.reviews} avis)</p>
+      <p class="hours">${esc(hoursText(s))}</p>
+    </div>
+    <button type="button" class="x" data-close aria-label="Fermer">×</button>
+  </header>`;
+}
+
+function renderBooking(){
+  const s = bk.salon;
+  let html = bookingHead(s);
+  if (bk.step < 4){
+    html += `<ol class="stepper">${STEPS.map((l, i) => `<li class="${i + 1 === bk.step ? 'is-current' : ''} ${i + 1 < bk.step ? 'is-done' : ''}"><span>${i + 1}</span>${l}</li>`).join('')}</ol>`;
+  }
+  if (bk.step === 1) html += step1(s);
+  else if (bk.step === 2) html += step2(s);
+  else if (bk.step === 3) html += step3(s);
+  else html += step4();
+  dlgBk.innerHTML = html;
+  if (bk.step === 3) $('#bk-prenom', dlgBk).focus();
+}
+
+function step1(s){
+  const groups = GROUPS.map(g => {
+    const items = s.services.filter(id => SVC[id].g === g);
+    if (!items.length) return '';
+    return `<fieldset class="svc-group"><legend>${g}</legend>${items.map(id => `<label class="svc"><input type="radio" name="svc" value="${id}" ${bk.svc === id ? 'checked' : ''}><span>${esc(SVC[id].n)}</span><span class="svc-dur">${fmtDur(SVC[id].m)}</span><span class="svc-price">${euro(priceOf(s, id))}</span></label>`).join('')}</fieldset>`;
+  }).join('');
+  const pre = bk.day && bk.time != null ? `Créneau retenu : ${fLong.format(parseYmd(bk.day))} à ${fmtMin(bk.time)}` : 'Prix indicatifs, à régler au salon.';
+  return `<div class="dlg-body">${groups}</div>
+    <div class="dlg-foot"><p class="grow">${pre}</p><button type="button" class="btn btn-primary" data-goto="2" ${bk.svc ? '' : 'disabled'}>Choisir un créneau</button></div>`;
+}
+
+function step2(s){
+  const dur = SVC[bk.svc].m;
+  const days = Array.from({ length: 14 }, (_, i) => addDays(today(), i));
+  const avail = days.map(d => fitting(s, d, dur));
+  let idx = bk.day ? days.findIndex(d => ymd(d) === bk.day) : -1;
+  if (idx < 0 || !avail[idx] || !avail[idx].length){
+    if (bk.time != null && idx >= 0) bk.warn = 'Ce jour-là, il ne reste plus de place pour cette prestation. Voici le prochain jour disponible.';
+    idx = avail.findIndex(a => a && a.length);
+    bk.time = null;
+  } else if (bk.time != null && !avail[idx].includes(bk.time)){
+    bk.warn = 'Le créneau choisi est trop court pour cette prestation. Choisissez une autre heure.';
+    bk.time = null;
+  }
+  bk.day = idx >= 0 ? ymd(days[idx]) : null;
+  const strip = days.map((d, i) => {
+    const a = avail[i];
+    const on = i === idx;
+    const label = a === null ? 'fermé' : a.length ? a.length + ' libres' : 'complet';
+    return `<button type="button" class="daybtn" data-day="${ymd(d)}" aria-pressed="${on}" ${a && a.length ? '' : 'disabled'} aria-label="${fLong.format(d)}, ${label}"><span class="dw">${i === 0 ? 'auj.' : fWk.format(d)}</span><span class="dn">${d.getDate()}</span><span class="dm">${label}</span></button>`;
+  }).join('');
+  const warn = bk.warn ? `<p class="warn">${bk.warn}</p>` : '';
+  bk.warn = '';
+  return `<div class="dlg-body">
+      <div class="picked"><span><strong>${esc(SVC[bk.svc].n)}</strong> · ${fmtDur(dur)} · ${euro(priceOf(s, bk.svc))}</span><button type="button" class="link" data-goto="1">Modifier</button></div>
+      ${warn}
+      <div class="daystrip" id="bk-days">${strip}</div>
+      <div id="bk-slots">${idx >= 0 ? slotGroups(avail[idx]) : '<p class="warn">Aucun créneau sur les deux prochaines semaines. Essayez un autre salon.</p>'}</div>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn btn-ghost" data-goto="1">Retour</button><button type="button" class="btn btn-primary" data-goto="3" ${bk.time != null ? '' : 'disabled'}>Continuer</button></div>`;
+}
+
+function slotGroups(slots){
+  const parts = [['Matin', m => m < 720], ['Après-midi', m => m >= 720 && m < 1020], ['Soir', m => m >= 1020]];
+  return parts.map(([label, fn]) => {
+    const list = slots.filter(fn);
+    if (!list.length) return '';
+    return `<div class="slot-group"><h3>${label}</h3><div class="slot-grid">${list.map(m => `<button type="button" class="slot" data-time="${m}" aria-pressed="${bk.time === m}">${fmtMin(m)}</button>`).join('')}</div></div>`;
+  }).join('');
+}
+
+function step3(s){
+  const day = parseYmd(bk.day);
+  return `<div class="dlg-body">
+      <dl class="recap">
+        <dt>Prestation</dt><dd>${esc(SVC[bk.svc].n)}</dd>
+        <dt>Date</dt><dd>${cap(fLong.format(day))}</dd>
+        <dt>Heure</dt><dd>${fmtMin(bk.time)} à ${fmtMin(bk.time + SVC[bk.svc].m)}</dd>
+        <dt>Prix</dt><dd>${euro(priceOf(s, bk.svc))}, à régler au salon</dd>
+      </dl>
+      <form class="form" id="bk-form" novalidate>
+        <label for="bk-prenom">Votre prénom<input id="bk-prenom" name="prenom" autocomplete="given-name" required maxlength="40"></label>
+        <p class="err" id="bk-err" hidden>Indiquez un prénom pour que le salon vous accueille.</p>
+        <label for="bk-staff">Avec<select id="bk-staff" name="staff"><option value="">Sans préférence</option>${s.staff.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
+        <p class="fine">Démonstration : rien n’est envoyé au salon. Le rendez-vous est gardé dans ce navigateur, dans « Mes rendez-vous ».</p>
+      </form>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn btn-ghost" data-goto="2">Retour</button><button type="submit" form="bk-form" class="btn btn-accent">Confirmer le rendez-vous</button></div>`;
+}
+
+function step4(){
+  const r = bk.saved;
+  return `<div class="done">
+    <div class="done-mark"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></div>
+    <h2>C’est noté, ${esc(r.prenom)}.</h2>
+    <p>${esc(r.svc)} chez ${esc(r.salon)}, ${fLong.format(parseYmd(r.date))} à ${fmtMin(r.time)}${r.staff ? ', avec ' + esc(r.staff) : ''}.</p>
+    <p class="fine">Réservation simulée : aucun salon n’a été contacté.</p>
+    <div class="row"><button type="button" class="btn btn-ghost" data-show-rdv>Voir mes rendez-vous</button><button type="button" class="btn btn-primary" data-close>Terminer</button></div>
+  </div>`;
+}
+
+dlgBk.addEventListener('click', e => {
+  if (e.target === dlgBk){ dlgBk.close(); return; }
+  const b = e.target.closest('button');
+  if (!b || b.disabled) return;
+  if (b.hasAttribute('data-close')) dlgBk.close();
+  else if (b.dataset.goto){ bk.step = +b.dataset.goto; renderBooking(); }
+  else if (b.dataset.day){
+    bk.day = b.dataset.day;
+    bk.time = null;
+    $$('#bk-days .daybtn', dlgBk).forEach(x => x.setAttribute('aria-pressed', x === b));
+    $('#bk-slots', dlgBk).innerHTML = slotGroups(fitting(bk.salon, parseYmd(bk.day), SVC[bk.svc].m));
+    $('[data-goto="3"]', dlgBk).disabled = true;
+  }
+  else if (b.dataset.time){
+    bk.time = +b.dataset.time;
+    $$('#bk-slots .slot', dlgBk).forEach(x => x.setAttribute('aria-pressed', x === b));
+    $('[data-goto="3"]', dlgBk).disabled = false;
+  }
+  else if (b.hasAttribute('data-show-rdv')){ dlgBk.close(); openRdv(); }
+});
+dlgBk.addEventListener('change', e => {
+  if (e.target.name === 'svc'){ bk.svc = e.target.value; const next = $('[data-goto="2"]', dlgBk); if (next) next.disabled = false; }
+});
+dlgBk.addEventListener('submit', e => {
+  e.preventDefault();
+  const prenom = $('#bk-prenom', dlgBk).value.trim();
+  if (!prenom){ $('#bk-err', dlgBk).hidden = false; $('#bk-prenom', dlgBk).focus(); return; }
+  const s = bk.salon;
+  const rec = {
+    id: Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36),
+    salon: s.name, addr: s.addr, svc: SVC[bk.svc].n, dur: SVC[bk.svc].m, price: priceOf(s, bk.svc),
+    date: bk.day, time: bk.time, prenom: prenom.slice(0, 40), staff: $('#bk-staff', dlgBk).value
+  };
+  saveRdv(loadRdv().concat(rec));
+  bk.saved = rec;
+  bk.step = 4;
+  renderBooking();
+  updateCount();
+});
+
+/* ---------- Mes rendez-vous (stored in this browser only) ---------- */
+const STORE_KEY = 'frange.rdv.v1';
+let memRdv = [];
+function loadRdv(){
+  try { const raw = localStorage.getItem(STORE_KEY); if (raw){ const v = JSON.parse(raw); if (Array.isArray(v)) return v; } } catch (e) {}
+  return memRdv.slice();
+}
+function saveRdv(list){
+  memRdv = list.slice();
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch (e) {}
+}
+const isPast = r => { const d = parseYmd(r.date); d.setMinutes(r.time); return d < new Date(); };
+function updateCount(){
+  const n = loadRdv().filter(r => !isPast(r)).length;
+  const c = $('#rdv-count');
+  c.textContent = n;
+  c.hidden = n === 0;
+}
+
+const dlgRdv = $('#rdv');
+let pendingCancel = null;
+function openRdv(){ pendingCancel = null; renderRdv(); if (!dlgRdv.open) dlgRdv.showModal(); }
+function renderRdv(){
+  const list = loadRdv().sort((a, b) => (a.date + pad(a.time)).localeCompare(b.date + pad(b.time)));
+  const items = list.map(r => {
+    const d = parseYmd(r.date);
+    const past = isPast(r);
+    const actions = past ? '<span class="fine">Passé</span>' : pendingCancel === r.id
+      ? `<span>Annuler ce rendez-vous ?</span><button type="button" class="btn btn-accent" data-cancel-yes="${r.id}">Oui, annuler</button><button type="button" class="btn btn-ghost" data-cancel-no>Garder</button>`
+      : `<button type="button" class="link" data-cancel="${r.id}">Annuler</button>`;
+    return `<li class="rdv ${past ? 'past' : ''}">
+      <div class="rdv-date"><span class="dw">${fWk.format(d)}</span><span class="dn">${d.getDate()}</span><span class="dm">${fMon.format(d)}</span></div>
+      <div class="rdv-main">
+        <p class="rdv-time">${fmtMin(r.time)} · ${fmtDur(r.dur)} · ${euro(r.price)}</p>
+        <p class="rdv-svc">${esc(r.svc)}</p>
+        <p class="rdv-salon">${esc(r.salon)} · ${esc(r.addr)}${r.staff ? ' · avec ' + esc(r.staff) : ''}</p>
+        <div class="rdv-actions">${actions}</div>
+      </div>
+    </li>`;
+  }).join('');
+  dlgRdv.innerHTML = `<header class="dlg-head"><div><p class="kicker">Gardés dans ce navigateur</p><h2 id="rdv-title">Mes rendez-vous</h2></div><button type="button" class="x" data-close aria-label="Fermer">×</button></header>
+    <div class="dlg-body">${list.length ? `<ul class="rdv-list">${items}</ul>` : `<div class="empty"><h2>Aucun rendez-vous pour l’instant</h2><p>Cherchez un salon et choisissez un créneau : il apparaîtra ici.</p><button type="button" class="btn btn-primary" data-close data-city="Paris">Voir les salons de Paris</button></div>`}</div>`;
+}
+dlgRdv.addEventListener('click', e => {
+  if (e.target === dlgRdv){ dlgRdv.close(); return; }
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.hasAttribute('data-close')){ dlgRdv.close(); if (b.dataset.city) runSearch('', b.dataset.city); return; }
+  if (b.dataset.cancel){ pendingCancel = b.dataset.cancel; renderRdv(); const y = $('[data-cancel-yes]', dlgRdv); y && y.focus(); }
+  else if (b.hasAttribute('data-cancel-no')){ pendingCancel = null; renderRdv(); }
+  else if (b.dataset.cancelYes){ saveRdv(loadRdv().filter(r => r.id !== b.dataset.cancelYes)); pendingCancel = null; renderRdv(); updateCount(); toast('Rendez-vous annulé.'); }
+});
+
+/* ---------- Home content ---------- */
+const TRENDS = [
+  { q: 'Head spa', svc: 'headspa', d: 'Massage du cuir chevelu, vapeur et soin profond. Une heure pour décrocher.' },
+  { q: 'Lissage brésilien', svc: 'lissage', d: 'Des cheveux disciplinés pendant trois à cinq mois, même sous la pluie.' },
+  { q: 'Balayage', svc: 'balayage', d: 'Des éclaircissements peints à main levée, pour un blond qui repousse sans ligne nette.' },
+  { q: 'Dégradé homme', svc: 'degrade', d: 'Contours à la tondeuse, fondu progressif, finition aux ciseaux.' },
+  { q: 'Tresses', svc: 'tresses', d: 'Box braids, nattes collées ou vanilles, avec ou sans rajouts.' },
+  { q: 'Couleur végétale', svc: 'couleur-veg', d: 'Henné, indigo et cassia pour colorer sans oxydant.' }
+];
+const FREQUENT = ['Coupe femme','Coupe homme','Coupe enfant','Brushing','Balayage','Mèches','Coloration','Couleur végétale','Décoloration','Ombré hair','Lissage brésilien','Soin kératine','Head spa','Permanente','Cheveux bouclés','Coiffeur afro','Tresses','Extensions','Chignon de mariage','Coiffure de soirée','Frange rideau','Carré plongeant','Dégradé américain','Taille de barbe','Barbier','Coupe étudiant','Coiffeur pas cher','Ouvert le dimanche','Ouvert le lundi','Disponible aujourd’hui'];
+
+function renderHome(){
+  $('#cities').innerHTML = CITIES.map(c => `<button type="button" class="city" data-city="${esc(c.n)}"><span class="city-dep">${c.d}</span><span class="city-name">${esc(c.n)}</span><span class="city-sub">${salonsFor(c).length} salons</span></button>`).join('');
+  $('#more-cities').innerHTML = MORE_CITIES.map(([n, cp]) => `<li><button type="button" data-city="${esc(n)}">Coiffeurs à ${esc(n)}</button><span class="dep">${cp.slice(0, 2)}</span></li>`).join('');
+
+  const big = CITIES.slice(0, 3);
+  $('#trends').innerHTML = TRENDS.map(t => {
+    const prices = big.flatMap(c => salonsFor(c).filter(s => s.services.includes(t.svc)).map(s => priceOf(s, t.svc)));
+    const from = prices.length ? Math.min(...prices) : SVC[t.svc].p;
+    return `<article class="trend">
+      <h3>${esc(t.q)}</h3>
+      <p>${esc(t.d)}</p>
+      <p class="trend-meta">dès ${euro(from)} · ${fmtDur(SVC[t.svc].m)}</p>
+      <div class="trend-cities">${big.map(c => `<button type="button" class="chip" data-q="${esc(t.q)}" data-w="${esc(c.n)}">${esc(c.n)}</button>`).join('')}</div>
+    </article>`;
+  }).join('');
+
+  $('#frequent').innerHTML = FREQUENT.map(q => `<button type="button" class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('');
+
+  $('#f-presta-list').innerHTML = ['Coupe femme','Coupe homme','Coloration','Balayage','Brushing','Barbier'].map(q => `<li><button type="button" data-q="${q}">${q}</button></li>`).join('');
+  $('#f-villes-list').innerHTML = CITIES.slice(0, 8).map(c => `<li><button type="button" data-city="${esc(c.n)}">Coiffeurs à ${esc(c.n)}</button></li>`).join('');
+  $('#f-freq-list').innerHTML = ['Coiffeur pas cher','Ouvert le dimanche','Cheveux bouclés','Chignon de mariage','Coupe enfant','Head spa'].map(q => `<li><button type="button" data-q="${q}">${q}</button></li>`).join('');
+
+  const qs = new Set(SERVICES.map(s => s.t).concat(FREQUENT));
+  $('#q-suggest').innerHTML = Array.from(qs).map(v => `<option value="${esc(v)}"></option>`).join('');
+  $('#w-suggest').innerHTML = ALL_CITIES.map(c => `<option value="${esc(c.n)}"></option>`).join('');
+}
+
+/* Hero ticket: the real earliest slot among the Paris demo salons */
+let ticketTarget = null;
+function renderTicket(){
+  const list = salonsFor(ALL_CITIES[0]);
+  const dur = SVC['coupe-femme'].m;
+  for (let o = 0; o < 4; o++){
+    const d = addDays(today(), o);
+    let best = null;
+    for (const s of list){
+      if (!s.services.includes('coupe-femme')) continue;
+      const sl = fitting(s, d, dur);
+      if (sl && sl.length && (!best || sl[0] < best.m)) best = { s, m: sl[0] };
+    }
+    if (best){
+      ticketTarget = { s: best.s, day: ymd(d), time: best.m };
+      $('#ticket-time').innerHTML = `<small>${dayWord(d)}</small>${fmtMin(best.m)}`;
+      $('#ticket-svc').textContent = SVC['coupe-femme'].n + ' · ' + fmtDur(dur) + ' · ' + euro(priceOf(best.s, 'coupe-femme'));
+      $('#ticket-salon').textContent = best.s.name + ' · ' + best.s.addr.split(', ').pop();
+      return;
+    }
+  }
+}
+
+/* ---------- Nuancier ---------- */
+const LEVELS = [null, ['Noir', '#17110F'], ['Brun', '#261A15'], ['Châtain foncé', '#35251C'], ['Châtain', '#4A3123'], ['Châtain clair', '#634330'], ['Blond foncé', '#7F5B3E'], ['Blond', '#9F7A54'], ['Blond clair', '#BF9B6E'], ['Blond très clair', '#D8BC8E'], ['Blond très très clair', '#EADAB4']];
+const REFLETS = [['naturel', null], ['cendré', '#8C949E'], ['irisé', '#7A5C8C'], ['doré', '#D1A23E'], ['cuivré', '#C4602B'], ['acajou', '#8B2F3C'], ['rouge', '#B3182D'], ['marron', '#6E5638'], ['nacré', '#B7A6B9']];
+const shade = { l: 7, r1: 4, r2: 3 };
+const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const lum = c => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+function tint(base, hex, amt){
+  const t = hexRgb(hex);
+  const k = lum(base) / Math.max(1, lum(t));
+  return base.map((v, i) => v + (Math.min(255, t[i] * k) - v) * amt);
+}
+function renderShade(){
+  const { l, r1, r2 } = shade;
+  let c = hexRgb(LEVELS[l][1]);
+  if (r1) c = tint(c, REFLETS[r1][1], r2 === r1 ? 0.62 : 0.42);
+  if (r1 && r2 && r2 !== r1) c = tint(c, REFLETS[r2][1], 0.2);
+  $('#shade-swatch').style.setProperty('--c', `rgb(${c.map(Math.round).join(' ')})`);
+  $('#shade-code').textContent = l + '.' + r1 + (r1 && r2 ? r2 : '');
+  let name = LEVELS[l][0] + ' ' + REFLETS[r1][0];
+  if (r1 && r2) name += r2 === r1 ? ' intense' : ' ' + REFLETS[r2][0];
+  $('#shade-name').textContent = name;
+  $$('#levels button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.level === l));
+  $('#r2').disabled = !r1;
+}
+function initShade(){
+  $('#levels').innerHTML = LEVELS.slice(1).map((lv, i) => `<button type="button" data-level="${i + 1}" style="background:${lv[1]};color:${i < 6 ? '#FFFFFF' : '#1B1410'}" aria-label="${i + 1}, ${lv[0]}" aria-pressed="false">${i + 1}</button>`).join('');
+  $('#r1').innerHTML = REFLETS.map((r, i) => `<option value="${i}">.${i} ${r[0]}</option>`).join('');
+  $('#r2').innerHTML = '<option value="0">Aucun</option>' + REFLETS.slice(1).map((r, i) => `<option value="${i + 1}">${i + 1} ${r[0]}</option>`).join('');
+  $('#r1').value = shade.r1;
+  $('#r2').value = shade.r2;
+  $('#levels').addEventListener('click', e => { const b = e.target.closest('button'); if (b){ shade.l = +b.dataset.level; renderShade(); } });
+  $('#r1').addEventListener('change', e => { shade.r1 = +e.target.value; if (!shade.r1){ shade.r2 = 0; $('#r2').value = 0; } renderShade(); });
+  $('#r2').addEventListener('change', e => { shade.r2 = +e.target.value; renderShade(); });
+  renderShade();
+}
+
+/* ---------- Visage ---------- */
+const FACES = [
+  { id: 'ovale', label: 'Ovale', shape: '<ellipse cx="60" cy="80" rx="40" ry="56"/>', g: [34, 40, 33],
+    text: 'Front et mâchoire s’équilibrent, les pommettes sont la partie la plus large. C’est la forme la plus facile à coiffer : presque tout fonctionne, du très court au long dégradé.',
+    yes: ['Carré plongeant', 'Pixie', 'Longueurs dégradées'], no: ['Une frange lourde qui cache tout le front'] },
+  { id: 'rond', label: 'Rond', shape: '<ellipse cx="60" cy="80" rx="47" ry="51"/>', g: [38, 47, 37],
+    text: 'Largeur et hauteur sont proches, les contours sont doux. On cherche à allonger la silhouette avec de la hauteur sur le dessus et des lignes verticales.',
+    yes: ['Carré long sous le menton', 'Raie sur le côté', 'Volume au sommet'], no: ['Frange droite épaisse', 'Carré court arrondi au niveau des joues'] },
+  { id: 'carre', label: 'Carré', shape: '<path d="M22 42Q22 24 60 24Q98 24 98 42L98 106Q98 136 60 138Q22 136 22 106Z"/>', g: [38, 38, 36],
+    text: 'Front large et mâchoire marquée, de largeur presque égale. Des ondulations et des pointes effilées adoucissent les angles.',
+    yes: ['Ondulations souples', 'Frange rideau', 'Dégradé effilé'], no: ['Carré droit au ras de la mâchoire', 'Raie au milieu très stricte'] },
+  { id: 'coeur', label: 'Cœur', shape: '<path d="M16 56Q16 22 60 22Q104 22 104 56Q102 100 60 140Q18 100 16 56Z"/>', g: [44, 40, 22],
+    text: 'Front large, menton fin. On rééquilibre en ajoutant du volume dans le bas du visage plutôt que sur le dessus.',
+    yes: ['Carré mi-long ondulé', 'Frange longue balayée', 'Volume à hauteur du menton'], no: ['Volume concentré sur le dessus', 'Côtés plaqués'] },
+  { id: 'long', label: 'Long', shape: '<ellipse cx="60" cy="80" rx="34" ry="64"/>', g: [30, 34, 29],
+    text: 'Le visage est nettement plus haut que large. On cherche de la largeur : volume sur les côtés, frange, longueurs qui s’arrêtent à la mâchoire.',
+    yes: ['Frange droite ou rideau', 'Carré à hauteur de mâchoire', 'Boucles'], no: ['Longueurs raides au-delà des épaules', 'Volume au sommet'] }
+];
+let faceIdx = 0;
+function faceSvg(f){
+  const ys = [50, 80, 112], names = ['front', 'pommettes', 'mâchoire'];
+  const guides = f.g.map((hw, i) => `<line x1="${60 - hw}" x2="${60 + hw}" y1="${ys[i]}" y2="${ys[i]}" stroke-dasharray="3 3"/><text x="${60 + hw + 6}" y="${ys[i] + 3}" font-size="9" font-family="IBM Plex Mono, monospace" fill="currentColor" stroke="none">${names[i]}</text>`).join('');
+  return `<svg viewBox="0 0 176 160" role="img" aria-label="Visage ${f.label.toLowerCase()}, largeurs du front, des pommettes et de la mâchoire"><g fill="none" stroke="currentColor" stroke-width="2.5">${f.shape}</g><g class="guides" stroke="currentColor" stroke-width="1">${guides}</g></svg>`;
+}
+function renderFace(){
+  const f = FACES[faceIdx];
+  $$('#face-tabs [role="tab"]').forEach((t, i) => { t.setAttribute('aria-selected', i === faceIdx); t.setAttribute('aria-pressed', i === faceIdx); t.tabIndex = i === faceIdx ? 0 : -1; });
+  $('#face-panel').setAttribute('aria-labelledby', 'tab-' + f.id);
+  $('#face-panel').innerHTML = faceSvg(f) + `<div class="face-text"><h3>Visage ${f.label.toLowerCase()}</h3><p>${f.text}</p>
+    <div class="dos"><div><h4>À essayer</h4><ul>${f.yes.map(x => `<li>${x}</li>`).join('')}</ul></div><div><h4>À éviter</h4><ul>${f.no.map(x => `<li>${x}</li>`).join('')}</ul></div></div>
+    <div><button type="button" class="btn btn-ghost" data-q="Coupe femme">Trouver un coiffeur visagiste</button></div></div>`;
+}
+function initFaces(){
+  const tabs = $('#face-tabs');
+  tabs.innerHTML = FACES.map(f => `<button type="button" class="chip" role="tab" id="tab-${f.id}" aria-controls="face-panel">${f.label}</button>`).join('');
+  tabs.addEventListener('click', e => { const t = e.target.closest('[role="tab"]'); if (t){ faceIdx = $$('[role="tab"]', tabs).indexOf(t); renderFace(); } });
+  tabs.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    faceIdx = (faceIdx + d + FACES.length) % FACES.length;
+    renderFace();
+    $$('[role="tab"]', tabs)[faceIdx].focus();
+  });
+  renderFace();
+}
+
+/* ---------- Mirror strands ---------- */
+function initMirror(){
+  const cv = $('#strands');
+  const box = $('#mirror');
+  if (!cv || !cv.getContext) return;
+  const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const COLS = ['#2A1C15', '#3B281E', '#523627', '#6E4B30', '#8C6640', '#AE8556', '#CDA874', '#E3C998', '#A3542B', '#7A2734'];
+  let W = 0, H = 0, strands = [], raf = 0, visible = true;
+  let px = 0, push = 0, pushTarget = 0;
+  function build(){
+    const r = rng('miroir');
+    const n = Math.max(28, Math.round(W / 6));
+    strands = Array.from({ length: n }, (_, i) => ({
+      x: (i + 0.5) / n * W + (r() - 0.5) * 6,
+      c: COLS[Math.min(COLS.length - 1, Math.floor(Math.pow(r(), 1.15) * COLS.length))],
+      w: 1.4 + r() * 3.2,
+      ph: r() * Math.PI * 2,
+      amp: 6 + r() * 18,
+      sp: 0.35 + r() * 0.45,
+      len: 0.6 + r() * 0.3,
+      curl: (r() - 0.5) * 40
+    }));
+    const a = Math.floor(n * 0.64);
+    strands[a].c = strands[a + 1].c = '#C21A4A';
+    strands[a].w = strands[a + 1].w = 3.6;
+  }
+  function draw(ms){
+    const t = ms / 1000;
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = 'round';
+    for (const s of strands){
+      const sw = Math.sin(t * s.sp + s.ph) * s.amp;
+      const sw2 = Math.sin(t * s.sp * 1.6 + s.ph * 1.3) * s.amp * 0.5;
+      const dx = s.x - px;
+      const p = Math.sign(dx || 1) * Math.exp(-(dx * dx) / 2600) * 36 * push;
+      const endY = H * s.len;
+      ctx.beginPath();
+      ctx.moveTo(s.x, -10);
+      ctx.bezierCurveTo(s.x + sw * 0.15, endY * 0.35, s.x + sw * 0.7 + p * 0.6 + s.curl, endY * 0.7, s.x + sw + sw2 + p + s.curl * 0.4, endY);
+      ctx.globalAlpha = 0.95; ctx.strokeStyle = s.c; ctx.lineWidth = s.w; ctx.stroke();
+      ctx.globalAlpha = 0.2; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = Math.max(0.5, s.w * 0.22); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function frame(ms){
+    raf = 0;
+    push += (pushTarget - push) * 0.08;
+    draw(ms);
+    loop();
+  }
+  function loop(){ if (!raf && visible && !reduce.matches) raf = requestAnimationFrame(frame); }
+  function resize(){
+    const b = cv.getBoundingClientRect();
+    if (!b.width || !b.height) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = b.width; H = b.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+    draw(reduce.matches ? 0 : performance.now());
+  }
+  box.addEventListener('pointermove', e => { const b = cv.getBoundingClientRect(); px = e.clientX - b.left; pushTarget = 1; });
+  box.addEventListener('pointerleave', () => { pushTarget = 0; });
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(cv); else window.addEventListener('resize', resize);
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; loop(); }).observe(cv);
+  if (reduce.addEventListener) reduce.addEventListener('change', () => { draw(0); loop(); });
+  resize();
+  loop();
+}
+
+/* ---------- Global wiring ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-home],[data-city],[data-q],[data-soon],[data-cat],[data-open],[data-slot],[data-slot-day],[data-filter],[data-clear-filters]');
+  if (!el || el.closest('dialog')) return;
+  if (el.hasAttribute('data-home')){ e.preventDefault(); showView('home'); }
+  else if (el.dataset.city) runSearch('', el.dataset.city);
+  else if (el.dataset.q) runSearch(el.dataset.q, el.dataset.w || currentCity());
+  else if (el.hasAttribute('data-soon')) toast('Cette partie ne fait pas partie de la démo.');
+  else if (el.dataset.cat === 'coiffeur') showView('home');
+  else if (el.dataset.cat === 'barbier') runSearch('Barbier', currentCity());
+  else if (el.dataset.open) openBooking(SALON_BY_ID.get(el.dataset.open));
+  else if (el.dataset.slot){
+    const [id, day, m] = el.dataset.slot.split('|');
+    const s = SALON_BY_ID.get(id);
+    openBooking(s, { svc: refService(s), day, time: +m });
+  }
+  else if (el.dataset.slotDay){
+    const [id, day] = el.dataset.slotDay.split('|');
+    const s = SALON_BY_ID.get(id);
+    openBooking(s, { svc: refService(s), day });
+  }
+  else if (el.dataset.filter){
+    const f = el.dataset.filter;
+    state.filters.has(f) ? state.filters.delete(f) : state.filters.add(f);
+    renderResults();
+    const again = $(`[data-filter="${f}"]`);
+    again && again.focus();
+  }
+  else if (el.hasAttribute('data-clear-filters')){ state.filters.clear(); renderResults(); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'sort-select'){ state.sort = e.target.value; renderResults(); $('#sort-select').focus(); }
+});
+$('#search-home').addEventListener('submit', e => { e.preventDefault(); runSearch($('#q').value, $('#w').value); });
+$('#search-results').addEventListener('submit', e => { e.preventDefault(); runSearch($('#q2').value, $('#w2').value); });
+$('#ticket').addEventListener('click', () => { if (ticketTarget) openBooking(ticketTarget.s, { svc: 'coupe-femme', day: ticketTarget.day, time: ticketTarget.time }); });
+$('#open-rdv').addEventListener('click', openRdv);
+$('#more-cities-btn').addEventListener('click', e => {
+  const list = $('#more-cities');
+  list.hidden = !list.hidden;
+  e.currentTarget.setAttribute('aria-expanded', String(!list.hidden));
+  e.currentTarget.textContent = list.hidden ? 'Voir plus de villes' : 'Masquer les autres villes';
+});
+
+renderHome();
+renderTicket();
+initShade();
+initFaces();
+initMirror();
+updateCount();
+})();
+</script>
+</body>
+</html>
