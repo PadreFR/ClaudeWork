@@ -12,17 +12,19 @@ This repository is a workspace for Claude-assisted development tasks related to 
 ClaudeWork/
 ├── CLAUDE.md          # This file
 ├── hello-world/       # .NET Hello World console app (built by .github/workflows/dotnet-build.yml)
-└── frange-coiffeur/   # Static single-page demo of a hair-salon booking site (French)
+└── frange-coiffeur/   # Client-side appointment booking module for one hair salon (French)
     ├── index.html     # All HTML, CSS and JS; no build step
     └── README.md
 ```
 
 ### frange-coiffeur
 
+- Scope is the client booking module only: service → slot (staff, day, time) → contact details → confirmation, plus "Mes rendez-vous" to view or cancel.
 - Open `frange-coiffeur/index.html` directly, or serve it with `python3 -m http.server 8000 --directory frange-coiffeur`.
 - No dependencies or build. Fonts load from Google Fonts with system fallbacks.
+- Salon settings (hours, staff, services, booking rules) live in the `CONFIG` object at the top of the script.
+- Bookings are stored in `localStorage` through the `store` object; `demoAgenda()` fakes existing appointments. Both are the integration points for a real backend.
 - Colors are CSS custom properties on `:root`, with dark-theme overrides. Add new colors as tokens, not literals.
-- Salon data is fictional and generated deterministically per city (`salonsFor`). Keep it marked as demo content.
 
 ---
 

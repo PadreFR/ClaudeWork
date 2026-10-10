@@ -1,11 +1,19 @@
-# Frange — démo de réservation de coiffeurs
+# Frange — module de réservation client
 
-Site statique d’une seule page qui reprend le fonctionnement d’un annuaire de
-réservation de coiffeurs en ligne : recherche par prestation et par ville, liste
-de salons avec créneaux libres, puis réservation en trois étapes.
+Module de prise de rendez-vous en ligne pour **un** salon de coiffure, côté
+client. C’est tout : pas de page d’accueil, pas d’annuaire.
 
-La marque, les textes et les visuels sont originaux. Les salons, avis, tarifs et
-disponibilités sont **générés et fictifs**, et aucune réservation n’est envoyée.
+Parcours :
+
+1. **Prestation** : liste par catégorie, avec durée et prix.
+2. **Créneau** : choix du coiffeur (ou « sans préférence »), du jour, puis de
+   l’heure. Seuls les horaires où la prestation tient en entier sont proposés.
+3. **Coordonnées** : prénom, nom et téléphone obligatoires, e-mail et message
+   facultatifs.
+4. **Confirmation** avec une référence de rendez-vous.
+
+L’onglet **Mes rendez-vous** liste les rendez-vous à venir et passés. On peut y
+annuler un rendez-vous jusqu’à `cancelHours` heures avant (24 h par défaut).
 
 ## Lancer
 
@@ -14,31 +22,27 @@ servez le dossier :
 
 ```bash
 python3 -m http.server 8000 --directory frange-coiffeur
-# puis http://localhost:8000
 ```
 
-Les polices viennent de Google Fonts. Hors ligne, la page utilise les polices
-système.
+## Adapter au salon
 
-## Fonctionnalités
+Tout se règle dans l’objet `CONFIG`, en tête du script de `index.html` :
 
-- **Accueil** : recherche « Que cherchez-vous ? / Où ? », villes principales avec
-  leur numéro de département, prestations du moment, guide, recherches fréquentes,
-  encart pour les professionnels.
-- **Résultats** : filtres (disponible aujourd’hui, note, prix, ouvert le lundi ou
-  le dimanche), tri, créneaux sur trois jours par salon.
-- **Réservation** : prestation → date et heure → prénom, puis confirmation.
-  Les rendez-vous sont gardés dans le `localStorage` du navigateur
-  (« Mes rendez-vous »), où l’on peut aussi les annuler.
-- **Nuancier** : compose un numéro de couleur (hauteur de ton + reflets, par
-  exemple 7.43) et affiche son nom et un aperçu.
-- **Formes de visage** : conseils de coupe selon la forme du visage.
+| Clé | Rôle |
+|---|---|
+| `salon` | nom, type et adresse affichés en en-tête |
+| `hours` | horaires par jour (0 = dimanche), en minutes depuis minuit ; `null` = fermé |
+| `closedDates` | jours de fermeture exceptionnelle (`AAAA-MM-JJ`) |
+| `slotStep`, `minNotice`, `daysAhead` | pas des créneaux, délai minimum, horizon de réservation |
+| `cancelHours` | délai d’annulation en ligne |
+| `staff` | équipe et jours travaillés de chacun |
+| `categories` | prestations : `id`, nom, `note`, durée `m` (min), prix `p` (€), `from: true` pour un prix « dès » |
 
-## Structure du code
+## Limites de la démo
 
-Tout est dans `index.html` : CSS en tête (couleurs définies comme variables, avec
-thème clair et sombre), puis le HTML, puis un script sans dépendance.
-
-Les salons sont produits par un générateur pseudo-aléatoire initialisé avec le
-nom de la ville (`salonsFor`). Tout le monde voit donc les mêmes salons. Les
-créneaux dépendent du salon et de la date (`slotsFor`, `fitting`).
+- Les rendez-vous sont enregistrés dans le `localStorage` du navigateur
+  (objet `store`) : le salon ne les reçoit pas. Pour un vrai service,
+  remplacez `store.load`, `store.add` et `store.remove` par des appels à
+  votre serveur.
+- `demoAgenda()` simule des rendez-vous déjà pris, pour que l’agenda ne soit
+  pas vide. Remplacez-le par l’agenda réel du salon.
